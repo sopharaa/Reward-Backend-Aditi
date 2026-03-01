@@ -3,6 +3,10 @@ package com.phara.pontrix_backend.features.admin;
 import com.phara.pontrix_backend.domain.Company;
 import com.phara.pontrix_backend.features.auth.JwtService;
 import com.phara.pontrix_backend.features.companies.CompanyRepository;
+import com.phara.pontrix_backend.features.rewards.RewardService;
+import com.phara.pontrix_backend.features.rewards.dto.CreateRewardRequest;
+import com.phara.pontrix_backend.features.rewards.dto.RewardResponse;
+import com.phara.pontrix_backend.features.rewards.dto.UpdateRewardRequest;
 import com.phara.pontrix_backend.mapper.AdminMapper;
 import com.phara.pontrix_backend.mapper.CompanyMapper;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.phara.pontrix_backend.domain.Admin;
 import com.phara.pontrix_backend.features.admin.dto.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,6 +29,7 @@ public class AdminServiceImpl implements AdminService {
     private final JwtService jwtService;
     private final CompanyRepository companyRepository;
     private final CompanyMapper companyMapper;
+    private final RewardService rewardService;
 
     @Override
     public AdminLoginResponse login(AdminLoginRequest request) {
@@ -80,5 +86,36 @@ public class AdminServiceImpl implements AdminService {
         // Soft delete
         company.setDeletedAt(LocalDateTime.now());
         companyRepository.save(company);
+    }
+
+    // Reward Management - Delegate to RewardService
+    @Override
+    public RewardResponse createReward(CreateRewardRequest request, MultipartFile image) {
+        return rewardService.createReward(request, image);
+    }
+
+    @Override
+    public RewardResponse updateReward(Long id, UpdateRewardRequest request, MultipartFile image) {
+        return rewardService.updateReward(id, request, image);
+    }
+
+    @Override
+    public RewardResponse viewReward(Long id) {
+        return rewardService.viewReward(id);
+    }
+
+    @Override
+    public List<RewardResponse> viewAllRewards() {
+        return rewardService.viewAllRewards();
+    }
+
+    @Override
+    public List<RewardResponse> viewRewardsByCompany(Long companyId) {
+        return rewardService.viewRewardsByCompany(companyId);
+    }
+
+    @Override
+    public void deleteReward(Long id) {
+        rewardService.deleteReward(id);
     }
 }

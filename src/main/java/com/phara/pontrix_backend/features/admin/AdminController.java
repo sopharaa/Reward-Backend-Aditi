@@ -1,11 +1,16 @@
 package com.phara.pontrix_backend.features.admin;
 
 import com.phara.pontrix_backend.features.admin.dto.*;
+import com.phara.pontrix_backend.features.rewards.dto.CreateRewardRequest;
+import com.phara.pontrix_backend.features.rewards.dto.RewardResponse;
+import com.phara.pontrix_backend.features.rewards.dto.UpdateRewardRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -58,6 +63,54 @@ public class AdminController {
         adminService.deleteCompany(id);
         return ResponseEntity.ok(
             new ApiResponse("Company deleted successfully", null)
+        );
+    }
+
+    // Reward Management Endpoints
+    @PostMapping(value = "/rewards", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> createReward(
+            @Valid @ModelAttribute CreateRewardRequest request,
+            @RequestParam(value = "image", required = false) MultipartFile image) {
+        RewardResponse response = adminService.createReward(request, image);
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+            new ApiResponse("Reward created successfully", response)
+        );
+    }
+
+    @PutMapping(value = "/rewards/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateReward(
+            @PathVariable Long id,
+            @Valid @ModelAttribute UpdateRewardRequest request,
+            @RequestParam(value = "image", required = false) MultipartFile image) {
+        RewardResponse response = adminService.updateReward(id, request, image);
+        return ResponseEntity.ok(
+            new ApiResponse("Reward updated successfully", response)
+        );
+    }
+
+    @GetMapping("/rewards/{id}")
+    public ResponseEntity<RewardResponse> viewReward(@PathVariable Long id) {
+        RewardResponse response = adminService.viewReward(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/rewards")
+    public ResponseEntity<List<RewardResponse>> viewAllRewards() {
+        List<RewardResponse> response = adminService.viewAllRewards();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/rewards/company/{companyId}")
+    public ResponseEntity<List<RewardResponse>> viewRewardsByCompany(@PathVariable Long companyId) {
+        List<RewardResponse> response = adminService.viewRewardsByCompany(companyId);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/rewards/{id}")
+    public ResponseEntity<?> deleteReward(@PathVariable Long id) {
+        adminService.deleteReward(id);
+        return ResponseEntity.ok(
+            new ApiResponse("Reward deleted successfully", null)
         );
     }
 
