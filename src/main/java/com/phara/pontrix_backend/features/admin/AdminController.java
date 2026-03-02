@@ -66,6 +66,51 @@ public class AdminController {
         );
     }
 
+    // Staff Management Endpoints
+    @PostMapping("/staff")
+    public ResponseEntity<?> createStaff(@Valid @RequestBody CreateStaffRequest request) {
+        StaffResponse response = adminService.createStaff(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+            new ApiResponse("Staff created successfully", response)
+        );
+    }
+
+    @PutMapping("/staff/{id}")
+    public ResponseEntity<?> updateStaff(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateStaffRequest request) {
+        StaffResponse response = adminService.updateStaff(id, request);
+        return ResponseEntity.ok(
+            new ApiResponse("Staff updated successfully", response)
+        );
+    }
+
+    @GetMapping("/staff/{id}")
+    public ResponseEntity<StaffResponse> viewStaff(@PathVariable Long id) {
+        StaffResponse response = adminService.viewStaff(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/staff")
+    public ResponseEntity<List<StaffResponse>> viewAllStaff() {
+        List<StaffResponse> response = adminService.viewAllStaff();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/staff/company/{companyId}")
+    public ResponseEntity<List<StaffResponse>> viewStaffByCompany(@PathVariable Long companyId) {
+        List<StaffResponse> response = adminService.viewStaffByCompany(companyId);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/staff/{id}")
+    public ResponseEntity<?> deleteStaff(@PathVariable Long id) {
+        adminService.deleteStaff(id);
+        return ResponseEntity.ok(
+            new ApiResponse("Staff deleted successfully", null)
+        );
+    }
+
     // Reward Management Endpoints
     @PostMapping(value = "/rewards", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createReward(

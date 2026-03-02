@@ -18,6 +18,14 @@ public interface AdminService {
     List<CompanyResponse> viewAllCompanies();
     void deleteCompany(Long id);
 
+    // Staff Management
+    StaffResponse createStaff(CreateStaffRequest request);
+    StaffResponse updateStaff(Long id, UpdateStaffRequest request);
+    StaffResponse viewStaff(Long id);
+    List<StaffResponse> viewAllStaff();
+    List<StaffResponse> viewStaffByCompany(Long companyId);
+    void deleteStaff(Long id);
+
     // Reward Management
     RewardResponse createReward(CreateRewardRequest request, MultipartFile image);
     RewardResponse updateReward(Long id, UpdateRewardRequest request, MultipartFile image);

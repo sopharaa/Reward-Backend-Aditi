@@ -11,21 +11,23 @@ public class JwtService {
     private final String SECRET = "your-super-secret-key-that-is-very-long-256-bit";
     private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
-    private final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 15; // 15 min
+    private final long ACCESS_TOKEN_EXPIRATION = 1000L * 60 * 60 * 24; // 24 hours
     private final long REFRESH_TOKEN_EXPIRATION = 1000L * 60 * 60 * 24 * 7; // 7 days
 
-    public String generateAccessToken(String username) {
+    public String generateAccessToken(String username, String role) {
         return Jwts.builder()
                 .setSubject(username)
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String generateRefreshToken(String username) {
+    public String generateRefreshToken(String username, String role) {
         return Jwts.builder()
                 .setSubject(username)
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -34,6 +36,10 @@ public class JwtService {
 
     public String extractUsername(String token) {
         return extractClaims(token).getSubject();
+    }
+
+    public String extractRole(String token) {
+        return (String) extractClaims(token).get("role");
     }
 
     public boolean validateToken(String token) {

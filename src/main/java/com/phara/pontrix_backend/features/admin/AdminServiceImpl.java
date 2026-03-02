@@ -1,14 +1,17 @@
 package com.phara.pontrix_backend.features.admin;
 
 import com.phara.pontrix_backend.domain.Company;
+import com.phara.pontrix_backend.domain.Staff;
 import com.phara.pontrix_backend.features.auth.JwtService;
 import com.phara.pontrix_backend.features.companies.CompanyRepository;
 import com.phara.pontrix_backend.features.rewards.RewardService;
 import com.phara.pontrix_backend.features.rewards.dto.CreateRewardRequest;
 import com.phara.pontrix_backend.features.rewards.dto.RewardResponse;
 import com.phara.pontrix_backend.features.rewards.dto.UpdateRewardRequest;
+import com.phara.pontrix_backend.features.staff.StaffRepository;
 import com.phara.pontrix_backend.mapper.AdminMapper;
 import com.phara.pontrix_backend.mapper.CompanyMapper;
+import com.phara.pontrix_backend.mapper.StaffMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,6 +32,8 @@ public class AdminServiceImpl implements AdminService {
     private final JwtService jwtService;
     private final CompanyRepository companyRepository;
     private final CompanyMapper companyMapper;
+    private final StaffRepository staffRepository;
+    private final StaffMapper staffMapper;
     private final RewardService rewardService;
 
     @Override
@@ -40,8 +45,8 @@ public class AdminServiceImpl implements AdminService {
         if (!passwordEncoder.matches(request.password(), admin.getPassword())) {
             throw new RuntimeException("Invalid password");
         }
-        String accessToken = jwtService.generateAccessToken(admin.getName());
-        String refreshToken = jwtService.generateRefreshToken(admin.getName());
+        String accessToken = jwtService.generateAccessToken(admin.getName(), "ADMIN");
+        String refreshToken = jwtService.generateRefreshToken(admin.getName(), "ADMIN");
 
         return adminMapper.toLoginResponse(admin, accessToken, refreshToken);
     }
@@ -86,6 +91,70 @@ public class AdminServiceImpl implements AdminService {
         // Soft delete
         company.setDeletedAt(LocalDateTime.now());
         companyRepository.save(company);
+    }
+
+    // Staff Management
+    @Override
+    public StaffResponse createStaff(CreateStaffRequest request) {
+        Company company = companyRepository.findByIdAndDeletedAtIsNull(request.companyId())
+                .orElseThrow(() -> new RuntimeException("Company not found"));
+
+        if (staffRepository.existsByEmail(request.email())) {
+            throw new RuntimeException("Email already in use");
+        }
+
+        Staff staff = new Staff();
+        staff.setCompany(company);
+        staff.setName(request.name());
+        staff.setEmail(request.email());
+        staff.setPassword(passwordEncoder.encode(request.password()));
+
+        return staffMapper.toResponse(staffRepository.save(staff));
+    }
+
+    @Override
+    public StaffResponse updateStaff(Long id, UpdateStaffRequest request) {
+        Staff staff = staffRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new RuntimeException("Staff not found"));
+
+        staffMapper.updateEntity(request, staff);
+
+        if (request.password() != null && !request.password().isBlank()) {
+            staff.setPassword(passwordEncoder.encode(request.password()));
+        }
+
+        return staffMapper.toResponse(staffRepository.save(staff));
+    }
+
+    @Override
+    public StaffResponse viewStaff(Long id) {
+        Staff staff = staffRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new RuntimeException("Staff not found"));
+        return staffMapper.toResponse(staff);
+    }
+
+    @Override
+    public List<StaffResponse> viewAllStaff() {
+        return staffRepository.findByDeletedAtIsNull()
+                .stream()
+                .map(staffMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<StaffResponse> viewStaffByCompany(Long companyId) {
+        return staffRepository.findByCompanyIdAndDeletedAtIsNull(companyId)
+                .stream()
+                .map(staffMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteStaff(Long id) {
+        Staff staff = staffRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new RuntimeException("Staff not found"));
+        staff.setDeletedAt(LocalDateTime.now());
+        staffRepository.save(staff);
     }
 
     // Reward Management - Delegate to RewardService
