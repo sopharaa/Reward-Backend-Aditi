@@ -11,14 +11,12 @@ import java.util.Optional;
 @Repository
 public interface RewardRepository extends JpaRepository<Reward, Long> {
 
-    // Find all non-deleted rewards
+    @Query("SELECT r FROM Reward r WHERE r.deletedAt IS NULL ORDER BY r.id ASC")
     List<Reward> findByDeletedAtIsNull();
 
-    // Find non-deleted reward by id
     Optional<Reward> findByIdAndDeletedAtIsNull(Long id);
 
-    // Find all rewards by company (non-deleted)
-    @Query("SELECT r FROM Reward r WHERE r.company.id = :companyId AND r.deletedAt IS NULL")
+    @Query("SELECT r FROM Reward r WHERE r.company.id = :companyId AND r.deletedAt IS NULL ORDER BY r.id ASC")
     List<Reward> findByCompanyIdAndDeletedAtIsNull(Long companyId);
 }
 
