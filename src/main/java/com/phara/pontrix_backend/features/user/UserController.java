@@ -50,7 +50,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<UserProfileResponse> updateProfile(
+    public ResponseEntity<?> updateProfile(
             Principal principal,
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "password", required = false) String password,
@@ -61,6 +61,8 @@ public class UserController {
                 new UpdateUserProfileRequest(name, password, confirmPassword),
                 profileImage
         );
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new ApiResponse("User profile updated successfully", response));
     }
+
+    record ApiResponse(String message, Object data) {}
 }

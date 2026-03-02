@@ -5,9 +5,13 @@ import com.phara.pontrix_backend.features.auth.JwtService;
 import com.phara.pontrix_backend.features.auth.TokenBlacklistService;
 import com.phara.pontrix_backend.features.staff.dto.StaffLoginRequest;
 import com.phara.pontrix_backend.features.staff.dto.StaffLoginResponse;
+import com.phara.pontrix_backend.features.staff.dto.StaffProfileResponse;
+import com.phara.pontrix_backend.features.staff.dto.UpdateStaffProfileRequest;
+import com.phara.pontrix_backend.service.CloudStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +21,7 @@ public class StaffServiceImpl implements StaffService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final TokenBlacklistService tokenBlacklistService;
+    private final CloudStorageService cloudStorageService;
 
     @Override
     public StaffLoginResponse login(StaffLoginRequest request) {
@@ -46,5 +51,53 @@ public class StaffServiceImpl implements StaffService {
     public void logout(String token) {
         tokenBlacklistService.blacklist(token);
     }
-}
 
+    @Override
+    public StaffProfileResponse getProfile(String email) {
+        Staff staff = staffRepository.findByEmail(email)
+                .filter(s -> s.getDeletedAt() == null)
+                .orElseThrow(() -> new RuntimeException("Staff not found"));
+        return toProfileResponse(staff);
+    }
+
+    @Override
+    public StaffProfileResponse updateProfile(String email, UpdateStaffProfileRequest request, MultipartFile profileImage) {
+        Staff staff = staffRepository.findByEmail(email)
+                .filter(s -> s.getDeletedAt() == null)
+                .orElseThrow(() -> new RuntimeException("Staff not found"));
+
+        if (request.name() != null && !request.name().isBlank()) {
+            staff.setName(request.name());
+        }
+
+        if (request.password() != null && !request.password().isBlank()) {
+            if (!request.password().equals(request.confirmPassword())) {
+                throw new RuntimeException("Passwords do not match");
+            }
+            staff.setPassword(passwordEncoder.encode(request.password()));
+        }
+
+        if (profileImage != null && !profileImage.isEmpty()) {
+            if (staff.getProfileImage() != null && !staff.getProfileImage().isBlank()) {
+                cloudStorageService.deleteFile(staff.getProfileImage());
+            }
+            String imageUrl = cloudStorageService.uploadFile(profileImage, "staff");
+            staff.setProfileImage(imageUrl);
+        }
+
+        return toProfileResponse(staffRepository.save(staff));
+    }
+
+    private StaffProfileResponse toProfileResponse(Staff staff) {
+        return new StaffProfileResponse(
+                staff.getId(),
+                staff.getCompany() != null ? staff.getCompany().getId() : null,
+                staff.getCompany() != null ? staff.getCompany().getName() : null,
+                staff.getName(),
+                staff.getEmail(),
+                staff.getProfileImage(),
+                staff.getCreatedAt(),
+                staff.getUpdatedAt()
+        );
+    }
+}
