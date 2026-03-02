@@ -1,13 +1,13 @@
-package com.phara.pontrix_backend.features.staff.dto;
+package com.phara.pontrix_backend.features.user.dto;
 
-public record StaffLoginResponse(
+public record UserRegisterResponse(
         Long id,
         Long companyId,
+        String companyName,
         String name,
         String email,
-        String profileImage,
+        Long points,
         String accessToken,
         String refreshToken
 ) {
 }
-

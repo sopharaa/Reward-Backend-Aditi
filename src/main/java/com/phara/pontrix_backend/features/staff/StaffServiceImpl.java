@@ -31,6 +31,7 @@ public class StaffServiceImpl implements StaffService {
 
         return new StaffLoginResponse(
                 staff.getId(),
+                staff.getCompany() != null ? staff.getCompany().getId() : null,
                 staff.getName(),
                 staff.getEmail(),
                 staff.getProfileImage(),

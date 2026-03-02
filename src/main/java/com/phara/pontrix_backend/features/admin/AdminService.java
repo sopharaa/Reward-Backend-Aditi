@@ -33,4 +33,12 @@ public interface AdminService {
     List<RewardResponse> viewAllRewards();
     List<RewardResponse> viewRewardsByCompany(Long companyId);
     void deleteReward(Long id);
+
+    // User Management
+    UserResponse createUser(CreateUserRequest request);
+    UserResponse updateUser(Long id, UpdateUserRequest request);
+    UserResponse viewUser(Long id);
+    List<UserResponse> viewAllUsers();
+    List<UserResponse> viewUsersByCompany(Long companyId);
+    void deleteUser(Long id);
 }

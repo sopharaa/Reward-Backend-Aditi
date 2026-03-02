@@ -159,6 +159,51 @@ public class AdminController {
         );
     }
 
+    // User Management Endpoints
+    @PostMapping("/users")
+    public ResponseEntity<?> createUser(@Valid @RequestBody CreateUserRequest request) {
+        UserResponse response = adminService.createUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+            new ApiResponse("User created successfully", response)
+        );
+    }
+
+    @PutMapping("/users/{id}")
+    public ResponseEntity<?> updateUser(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateUserRequest request) {
+        UserResponse response = adminService.updateUser(id, request);
+        return ResponseEntity.ok(
+            new ApiResponse("User updated successfully", response)
+        );
+    }
+
+    @GetMapping("/users/{id}")
+    public ResponseEntity<UserResponse> viewUser(@PathVariable Long id) {
+        UserResponse response = adminService.viewUser(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<UserResponse>> viewAllUsers() {
+        List<UserResponse> response = adminService.viewAllUsers();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/users/company/{companyId}")
+    public ResponseEntity<List<UserResponse>> viewUsersByCompany(@PathVariable Long companyId) {
+        List<UserResponse> response = adminService.viewUsersByCompany(companyId);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        adminService.deleteUser(id);
+        return ResponseEntity.ok(
+            new ApiResponse("User deleted successfully", null)
+        );
+    }
+
     // Inner class for API response with message
     record ApiResponse(String message, Object data) {}
 }

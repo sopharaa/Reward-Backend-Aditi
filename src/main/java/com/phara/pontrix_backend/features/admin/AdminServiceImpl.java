@@ -2,6 +2,7 @@ package com.phara.pontrix_backend.features.admin;
 
 import com.phara.pontrix_backend.domain.Company;
 import com.phara.pontrix_backend.domain.Staff;
+import com.phara.pontrix_backend.domain.User;
 import com.phara.pontrix_backend.features.auth.JwtService;
 import com.phara.pontrix_backend.features.companies.CompanyRepository;
 import com.phara.pontrix_backend.features.rewards.RewardService;
@@ -9,9 +10,11 @@ import com.phara.pontrix_backend.features.rewards.dto.CreateRewardRequest;
 import com.phara.pontrix_backend.features.rewards.dto.RewardResponse;
 import com.phara.pontrix_backend.features.rewards.dto.UpdateRewardRequest;
 import com.phara.pontrix_backend.features.staff.StaffRepository;
+import com.phara.pontrix_backend.features.user.UserRepository;
 import com.phara.pontrix_backend.mapper.AdminMapper;
 import com.phara.pontrix_backend.mapper.CompanyMapper;
 import com.phara.pontrix_backend.mapper.StaffMapper;
+import com.phara.pontrix_backend.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,6 +38,8 @@ public class AdminServiceImpl implements AdminService {
     private final StaffRepository staffRepository;
     private final StaffMapper staffMapper;
     private final RewardService rewardService;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
     public AdminLoginResponse login(AdminLoginRequest request) {
@@ -186,5 +191,69 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void deleteReward(Long id) {
         rewardService.deleteReward(id);
+    }
+
+    // User Management
+    @Override
+    public UserResponse createUser(CreateUserRequest request) {
+        Company company = companyRepository.findByIdAndDeletedAtIsNull(request.companyId())
+                .orElseThrow(() -> new RuntimeException("Company not found"));
+
+        if (userRepository.existsByEmail(request.email())) {
+            throw new RuntimeException("Email already in use");
+        }
+
+        User user = new User();
+        user.setCompany(company);
+        user.setName(request.name());
+        user.setEmail(request.email());
+        user.setPassword(passwordEncoder.encode(request.password()));
+
+        return userMapper.toResponse(userRepository.save(user));
+    }
+
+    @Override
+    public UserResponse updateUser(Long id, UpdateUserRequest request) {
+        User user = userRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        userMapper.updateEntity(request, user);
+
+        if (request.password() != null && !request.password().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.password()));
+        }
+
+        return userMapper.toResponse(userRepository.save(user));
+    }
+
+    @Override
+    public UserResponse viewUser(Long id) {
+        User user = userRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return userMapper.toResponse(user);
+    }
+
+    @Override
+    public List<UserResponse> viewAllUsers() {
+        return userRepository.findByDeletedAtIsNull()
+                .stream()
+                .map(userMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserResponse> viewUsersByCompany(Long companyId) {
+        return userRepository.findByCompanyIdAndDeletedAtIsNull(companyId)
+                .stream()
+                .map(userMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        User user = userRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setDeletedAt(LocalDateTime.now());
+        userRepository.save(user);
     }
 }
