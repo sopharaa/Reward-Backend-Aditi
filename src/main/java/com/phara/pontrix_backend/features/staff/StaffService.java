@@ -5,5 +5,6 @@ import com.phara.pontrix_backend.features.staff.dto.StaffLoginResponse;
 
 public interface StaffService {
     StaffLoginResponse login(StaffLoginRequest request);
+    void logout(String token);
 }
 

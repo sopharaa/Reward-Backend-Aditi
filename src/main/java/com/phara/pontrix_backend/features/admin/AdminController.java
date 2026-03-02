@@ -27,6 +27,13 @@ public class AdminController {
         return adminService.login(request);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);
+        adminService.logout(token);
+        return ResponseEntity.ok(new ApiResponse("Logged out successfully", null));
+    }
+
     // Company Management Endpoints
     @PostMapping("/companies")
     public ResponseEntity<?> createCompany(@Valid @RequestBody CreateCompanyRequest request) {

@@ -2,6 +2,7 @@ package com.phara.pontrix_backend.features.staff;
 
 import com.phara.pontrix_backend.domain.Staff;
 import com.phara.pontrix_backend.features.auth.JwtService;
+import com.phara.pontrix_backend.features.auth.TokenBlacklistService;
 import com.phara.pontrix_backend.features.staff.dto.StaffLoginRequest;
 import com.phara.pontrix_backend.features.staff.dto.StaffLoginResponse;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ public class StaffServiceImpl implements StaffService {
     private final StaffRepository staffRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Override
     public StaffLoginResponse login(StaffLoginRequest request) {
@@ -38,6 +40,11 @@ public class StaffServiceImpl implements StaffService {
                 accessToken,
                 refreshToken
         );
+    }
+
+    @Override
+    public void logout(String token) {
+        tokenBlacklistService.blacklist(token);
     }
 }
 

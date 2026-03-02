@@ -4,6 +4,7 @@ import com.phara.pontrix_backend.domain.Company;
 import com.phara.pontrix_backend.domain.Staff;
 import com.phara.pontrix_backend.domain.User;
 import com.phara.pontrix_backend.features.auth.JwtService;
+import com.phara.pontrix_backend.features.auth.TokenBlacklistService;
 import com.phara.pontrix_backend.features.companies.CompanyRepository;
 import com.phara.pontrix_backend.features.rewards.RewardService;
 import com.phara.pontrix_backend.features.rewards.dto.CreateRewardRequest;
@@ -40,6 +41,7 @@ public class AdminServiceImpl implements AdminService {
     private final RewardService rewardService;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Override
     public AdminLoginResponse login(AdminLoginRequest request) {
@@ -54,6 +56,11 @@ public class AdminServiceImpl implements AdminService {
         String refreshToken = jwtService.generateRefreshToken(admin.getName(), "ADMIN");
 
         return adminMapper.toLoginResponse(admin, accessToken, refreshToken);
+    }
+
+    @Override
+    public void logout(String token) {
+        tokenBlacklistService.blacklist(token);
     }
 
     @Override

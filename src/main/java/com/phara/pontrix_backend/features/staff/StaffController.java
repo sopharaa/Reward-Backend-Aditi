@@ -20,5 +20,12 @@ public class StaffController {
         StaffLoginResponse response = staffService.login(request);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);
+        staffService.logout(token);
+        return ResponseEntity.ok("{\"message\":\"Logged out successfully\"}");
+    }
 }
 

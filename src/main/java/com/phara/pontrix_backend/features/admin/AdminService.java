@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface AdminService {
     AdminLoginResponse login(AdminLoginRequest request);
+    void logout(String token);
 
     // Company Management
     CompanyResponse createCompany(CreateCompanyRequest request);
