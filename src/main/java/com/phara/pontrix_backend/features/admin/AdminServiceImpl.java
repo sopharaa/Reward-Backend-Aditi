@@ -230,6 +230,16 @@ public class AdminServiceImpl implements AdminService {
             user.setPassword(passwordEncoder.encode(request.password()));
         }
 
+        if (request.companyId() != null) {
+            Company company = companyRepository.findByIdAndDeletedAtIsNull(request.companyId())
+                    .orElseThrow(() -> new RuntimeException("Company not found"));
+            user.setCompany(company);
+        }
+
+        if (request.points() != null) {
+            user.setPoints(request.points());
+        }
+
         return userMapper.toResponse(userRepository.save(user));
     }
 

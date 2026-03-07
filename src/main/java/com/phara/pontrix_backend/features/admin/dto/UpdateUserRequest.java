@@ -11,7 +11,11 @@ public record UpdateUserRequest(
         @Email(message = "Invalid email format")
         String email,
 
-        String password
+        String password,
+
+        Long companyId,
+
+        Long points
 ) {
 }
 

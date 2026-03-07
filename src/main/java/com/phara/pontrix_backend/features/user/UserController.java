@@ -1,11 +1,14 @@
 package com.phara.pontrix_backend.features.user;
 
+import com.phara.pontrix_backend.features.admin.dto.CompanyResponse;
+import com.phara.pontrix_backend.features.companies.CompanyRepository;
 import com.phara.pontrix_backend.features.user.dto.UpdateUserProfileRequest;
 import com.phara.pontrix_backend.features.user.dto.UserLoginRequest;
 import com.phara.pontrix_backend.features.user.dto.UserLoginResponse;
 import com.phara.pontrix_backend.features.user.dto.UserProfileResponse;
 import com.phara.pontrix_backend.features.user.dto.UserRegisterRequest;
 import com.phara.pontrix_backend.features.user.dto.UserRegisterResponse;
+import com.phara.pontrix_backend.mapper.CompanyMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -23,6 +28,18 @@ import java.security.Principal;
 public class UserController {
 
     private final UserService userService;
+    private final CompanyRepository companyRepository;
+    private final CompanyMapper companyMapper;
+
+    // Public endpoint – no auth required, used by the registration page
+    @GetMapping("/companies")
+    public ResponseEntity<List<CompanyResponse>> getPublicCompanies() {
+        List<CompanyResponse> response = companyRepository.findByDeletedAtIsNull()
+                .stream()
+                .map(companyMapper::toResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping("/register")
     public ResponseEntity<UserRegisterResponse> register(@Valid @RequestBody UserRegisterRequest request) {
