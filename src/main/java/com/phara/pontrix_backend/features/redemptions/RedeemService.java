@@ -10,6 +10,7 @@ public interface RedeemService {
     RedeemResponse redeemReward(String userEmail, CreateRedeemRequest request);
     List<RedeemResponse> getMyRedemptions(String userEmail);
     List<RedeemResponse> getPendingRedemptions(String staffEmail);
+    List<RedeemResponse> getCompanyRedemptions(String staffEmail);
     RedeemResponse updateRedeemStatus(String staffEmail, Long redeemId, UpdateRedeemStatusRequest request);
 }
 

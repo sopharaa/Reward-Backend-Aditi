@@ -17,6 +17,9 @@ public interface RedeemRepository extends JpaRepository<Redeem, Long> {
     @Query("SELECT r FROM Redeem r WHERE r.status = :status AND r.deletedAt IS NULL AND r.user.company.id = :companyId ORDER BY r.createdAt DESC")
     List<Redeem> findByStatusAndCompanyIdAndDeletedAtIsNull(String status, Long companyId);
 
+    @Query("SELECT r FROM Redeem r WHERE r.deletedAt IS NULL AND r.user.company.id = :companyId ORDER BY r.createdAt DESC")
+    List<Redeem> findByCompanyIdAndDeletedAtIsNull(Long companyId);
+
     Optional<Redeem> findByIdAndDeletedAtIsNull(Long id);
 }
 

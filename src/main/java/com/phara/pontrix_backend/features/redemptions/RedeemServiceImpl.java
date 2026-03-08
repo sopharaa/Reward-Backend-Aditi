@@ -103,6 +103,21 @@ public class RedeemServiceImpl implements RedeemService {
     }
 
     @Override
+    public List<RedeemResponse> getCompanyRedemptions(String staffEmail) {
+        Staff staff = staffRepository.findByEmail(staffEmail)
+                .filter(s -> s.getDeletedAt() == null)
+                .orElseThrow(() -> new RuntimeException("Staff not found"));
+
+        Long companyId = staff.getCompany() != null ? staff.getCompany().getId() : null;
+        if (companyId == null) return List.of();
+
+        return redeemRepository.findByCompanyIdAndDeletedAtIsNull(companyId)
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
     public RedeemResponse updateRedeemStatus(String staffEmail, Long redeemId, UpdateRedeemStatusRequest request) {
         Staff staff = staffRepository.findByEmail(staffEmail)
