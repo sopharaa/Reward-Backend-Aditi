@@ -1,5 +1,6 @@
 package com.phara.pontrix_backend.features.staff;
 
+import com.phara.pontrix_backend.features.rewards.dto.RewardResponse;
 import com.phara.pontrix_backend.features.staff.dto.StaffLoginRequest;
 import com.phara.pontrix_backend.features.staff.dto.StaffLoginResponse;
 import com.phara.pontrix_backend.features.staff.dto.StaffProfileResponse;
@@ -15,4 +16,5 @@ public interface StaffService {
     StaffProfileResponse getProfile(String email);
     StaffProfileResponse updateProfile(String email, UpdateStaffProfileRequest request, MultipartFile profileImage);
     List<UserProfileResponse> getCompanyUsers(String staffEmail);
+    List<RewardResponse> getCompanyRewards(String staffEmail);
 }

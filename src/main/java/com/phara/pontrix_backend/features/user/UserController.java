@@ -2,6 +2,11 @@ package com.phara.pontrix_backend.features.user;
 
 import com.phara.pontrix_backend.features.admin.dto.CompanyResponse;
 import com.phara.pontrix_backend.features.companies.CompanyRepository;
+import com.phara.pontrix_backend.features.orders.OrderService;
+import com.phara.pontrix_backend.features.orders.dto.OrderResponse;
+import com.phara.pontrix_backend.features.redemptions.RedeemService;
+import com.phara.pontrix_backend.features.redemptions.dto.CreateRedeemRequest;
+import com.phara.pontrix_backend.features.redemptions.dto.RedeemResponse;
 import com.phara.pontrix_backend.features.rewards.RewardService;
 import com.phara.pontrix_backend.features.rewards.dto.RewardResponse;
 import com.phara.pontrix_backend.features.user.dto.UpdateUserProfileRequest;
@@ -33,6 +38,8 @@ public class UserController {
     private final CompanyRepository companyRepository;
     private final CompanyMapper companyMapper;
     private final RewardService rewardService;
+    private final OrderService orderService;
+    private final RedeemService redeemService;
 
     // Public endpoint – no auth required, used by the registration page
     @GetMapping("/companies")
@@ -91,5 +98,30 @@ public class UserController {
         return ResponseEntity.ok(rewards);
     }
 
+    @PostMapping("/rewards/{rewardId}/redeem")
+    public ResponseEntity<?> redeemReward(@PathVariable Long rewardId, Principal principal) {
+        try {
+            RedeemResponse response = redeemService.redeemReward(
+                    principal.getName(),
+                    new CreateRedeemRequest(rewardId));
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
+    @GetMapping("/orders")
+    public ResponseEntity<List<OrderResponse>> getMyOrders(Principal principal) {
+        List<OrderResponse> orders = orderService.getOrdersByUser(principal.getName());
+        return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/redemptions")
+    public ResponseEntity<List<RedeemResponse>> getMyRedemptions(Principal principal) {
+        List<RedeemResponse> redemptions = redeemService.getMyRedemptions(principal.getName());
+        return ResponseEntity.ok(redemptions);
+    }
+
     record ApiResponse(String message, Object data) {}
+    record ErrorResponse(String message) {}
 }

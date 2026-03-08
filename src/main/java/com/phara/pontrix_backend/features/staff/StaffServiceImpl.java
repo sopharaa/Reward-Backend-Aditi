@@ -3,6 +3,8 @@ package com.phara.pontrix_backend.features.staff;
 import com.phara.pontrix_backend.domain.Staff;
 import com.phara.pontrix_backend.features.auth.JwtService;
 import com.phara.pontrix_backend.features.auth.TokenBlacklistService;
+import com.phara.pontrix_backend.features.rewards.RewardService;
+import com.phara.pontrix_backend.features.rewards.dto.RewardResponse;
 import com.phara.pontrix_backend.features.staff.dto.StaffLoginRequest;
 import com.phara.pontrix_backend.features.staff.dto.StaffLoginResponse;
 import com.phara.pontrix_backend.features.staff.dto.StaffProfileResponse;
@@ -28,6 +30,7 @@ public class StaffServiceImpl implements StaffService {
     private final JwtService jwtService;
     private final TokenBlacklistService tokenBlacklistService;
     private final CloudStorageService cloudStorageService;
+    private final RewardService rewardService;
 
     @Override
     public StaffLoginResponse login(StaffLoginRequest request) {
@@ -118,6 +121,19 @@ public class StaffServiceImpl implements StaffService {
                         u.getUpdatedAt()
                 ))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<RewardResponse> getCompanyRewards(String staffEmail) {
+        Staff staff = staffRepository.findByEmail(staffEmail)
+                .filter(s -> s.getDeletedAt() == null)
+                .orElseThrow(() -> new RuntimeException("Staff not found"));
+
+        if (staff.getCompany() == null) {
+            return List.of();
+        }
+
+        return rewardService.viewRewardsByCompany(staff.getCompany().getId());
     }
 
     private StaffProfileResponse toProfileResponse(Staff staff) {

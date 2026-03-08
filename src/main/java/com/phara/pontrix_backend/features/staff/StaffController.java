@@ -3,6 +3,7 @@ package com.phara.pontrix_backend.features.staff;
 import com.phara.pontrix_backend.features.orders.OrderService;
 import com.phara.pontrix_backend.features.orders.dto.CreateOrderRequest;
 import com.phara.pontrix_backend.features.orders.dto.OrderResponse;
+import com.phara.pontrix_backend.features.rewards.dto.RewardResponse;
 import com.phara.pontrix_backend.features.staff.dto.StaffLoginRequest;
 import com.phara.pontrix_backend.features.staff.dto.StaffLoginResponse;
 import com.phara.pontrix_backend.features.staff.dto.StaffProfileResponse;
@@ -79,6 +80,12 @@ public class StaffController {
     @GetMapping("/orders")
     public ResponseEntity<List<OrderResponse>> getMyOrders(Principal principal) {
         List<OrderResponse> response = orderService.getMyOrders(principal.getName());
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/rewards")
+    public ResponseEntity<List<RewardResponse>> getCompanyRewards(Principal principal) {
+        List<RewardResponse> response = staffService.getCompanyRewards(principal.getName());
         return ResponseEntity.ok(response);
     }
 

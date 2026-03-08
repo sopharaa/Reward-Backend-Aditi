@@ -85,6 +85,18 @@ public class OrderServiceImpl implements OrderService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<OrderResponse> getOrdersByUser(String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .filter(u -> u.getDeletedAt() == null)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return orderRepository.findByUserId(user.getId())
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
     private List<CreateOrderRequest.OrderItemDto> parseItems(String note) {
         if (note == null || note.isBlank()) return Collections.emptyList();
         try {
