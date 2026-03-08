@@ -1,17 +1,23 @@
 package com.phara.pontrix_backend.features.staff;
 
+import com.phara.pontrix_backend.features.orders.OrderService;
+import com.phara.pontrix_backend.features.orders.dto.CreateOrderRequest;
+import com.phara.pontrix_backend.features.orders.dto.OrderResponse;
 import com.phara.pontrix_backend.features.staff.dto.StaffLoginRequest;
 import com.phara.pontrix_backend.features.staff.dto.StaffLoginResponse;
 import com.phara.pontrix_backend.features.staff.dto.StaffProfileResponse;
 import com.phara.pontrix_backend.features.staff.dto.UpdateStaffProfileRequest;
+import com.phara.pontrix_backend.features.user.dto.UserProfileResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/staff")
@@ -20,6 +26,7 @@ import java.security.Principal;
 public class StaffController {
 
     private final StaffService staffService;
+    private final OrderService orderService;
 
     @PostMapping("/login")
     public ResponseEntity<StaffLoginResponse> login(@Valid @RequestBody StaffLoginRequest request) {
@@ -53,6 +60,26 @@ public class StaffController {
                 profileImage
         );
         return ResponseEntity.ok(new ApiResponse("Staff profile updated successfully", response));
+    }
+
+    @GetMapping("/company-users")
+    public ResponseEntity<List<UserProfileResponse>> getCompanyUsers(Principal principal) {
+        List<UserProfileResponse> users = staffService.getCompanyUsers(principal.getName());
+        return ResponseEntity.ok(users);
+    }
+
+    @PostMapping("/orders")
+    public ResponseEntity<OrderResponse> createOrder(
+            Principal principal,
+            @Valid @RequestBody CreateOrderRequest request) {
+        OrderResponse response = orderService.createOrder(principal.getName(), request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/orders")
+    public ResponseEntity<List<OrderResponse>> getMyOrders(Principal principal) {
+        List<OrderResponse> response = orderService.getMyOrders(principal.getName());
+        return ResponseEntity.ok(response);
     }
 
     record ApiResponse(String message, Object data) {}

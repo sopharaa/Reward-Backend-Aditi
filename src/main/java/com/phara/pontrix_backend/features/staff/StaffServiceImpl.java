@@ -7,17 +7,23 @@ import com.phara.pontrix_backend.features.staff.dto.StaffLoginRequest;
 import com.phara.pontrix_backend.features.staff.dto.StaffLoginResponse;
 import com.phara.pontrix_backend.features.staff.dto.StaffProfileResponse;
 import com.phara.pontrix_backend.features.staff.dto.UpdateStaffProfileRequest;
+import com.phara.pontrix_backend.features.user.UserRepository;
+import com.phara.pontrix_backend.features.user.dto.UserProfileResponse;
 import com.phara.pontrix_backend.service.CloudStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class StaffServiceImpl implements StaffService {
 
     private final StaffRepository staffRepository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final TokenBlacklistService tokenBlacklistService;
@@ -86,6 +92,32 @@ public class StaffServiceImpl implements StaffService {
         }
 
         return toProfileResponse(staffRepository.save(staff));
+    }
+
+    @Override
+    public List<UserProfileResponse> getCompanyUsers(String staffEmail) {
+        Staff staff = staffRepository.findByEmail(staffEmail)
+                .filter(s -> s.getDeletedAt() == null)
+                .orElseThrow(() -> new RuntimeException("Staff not found"));
+
+        if (staff.getCompany() == null) {
+            return List.of();
+        }
+
+        return userRepository.findByCompanyIdAndDeletedAtIsNull(staff.getCompany().getId())
+                .stream()
+                .map(u -> new UserProfileResponse(
+                        u.getId(),
+                        u.getCompany() != null ? u.getCompany().getId() : null,
+                        u.getCompany() != null ? u.getCompany().getName() : null,
+                        u.getName(),
+                        u.getEmail(),
+                        u.getPoints(),
+                        u.getProfileImage(),
+                        u.getCreatedAt(),
+                        u.getUpdatedAt()
+                ))
+                .collect(Collectors.toList());
     }
 
     private StaffProfileResponse toProfileResponse(Staff staff) {

@@ -2,6 +2,8 @@ package com.phara.pontrix_backend.features.user;
 
 import com.phara.pontrix_backend.features.admin.dto.CompanyResponse;
 import com.phara.pontrix_backend.features.companies.CompanyRepository;
+import com.phara.pontrix_backend.features.rewards.RewardService;
+import com.phara.pontrix_backend.features.rewards.dto.RewardResponse;
 import com.phara.pontrix_backend.features.user.dto.UpdateUserProfileRequest;
 import com.phara.pontrix_backend.features.user.dto.UserLoginRequest;
 import com.phara.pontrix_backend.features.user.dto.UserLoginResponse;
@@ -30,6 +32,7 @@ public class UserController {
     private final UserService userService;
     private final CompanyRepository companyRepository;
     private final CompanyMapper companyMapper;
+    private final RewardService rewardService;
 
     // Public endpoint – no auth required, used by the registration page
     @GetMapping("/companies")
@@ -79,6 +82,13 @@ public class UserController {
                 profileImage
         );
         return ResponseEntity.ok(new ApiResponse("User profile updated successfully", response));
+    }
+
+    @GetMapping("/rewards")
+    public ResponseEntity<List<RewardResponse>> getMyCompanyRewards(Principal principal) {
+        UserProfileResponse profile = userService.getProfile(principal.getName());
+        List<RewardResponse> rewards = rewardService.viewRewardsByCompany(profile.companyId());
+        return ResponseEntity.ok(rewards);
     }
 
     record ApiResponse(String message, Object data) {}
