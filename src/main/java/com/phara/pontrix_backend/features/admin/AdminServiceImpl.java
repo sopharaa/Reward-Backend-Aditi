@@ -206,7 +206,7 @@ public class AdminServiceImpl implements AdminService {
         Company company = companyRepository.findByIdAndDeletedAtIsNull(request.companyId())
                 .orElseThrow(() -> new RuntimeException("Company not found"));
 
-        if (userRepository.existsByEmail(request.email())) {
+        if (userRepository.existsByEmailAndDeletedAtIsNull(request.email())) {
             throw new RuntimeException("Email already in use");
         }
 
