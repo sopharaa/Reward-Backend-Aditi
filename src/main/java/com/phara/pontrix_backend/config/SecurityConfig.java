@@ -64,7 +64,7 @@ public class SecurityConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://localhost:3000","https://reward-frontend-aditi.vercel.app/", "https://pointrix-frontend-bt96d.ondigitalocean.app"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000","https://reward-frontend-aditi.vercel.app/", "https://pointrix-frontend-bt96d.ondigitalocean.app", "https://pointrix.paragoniu.me"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
