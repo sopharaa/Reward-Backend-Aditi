@@ -11,6 +11,8 @@ public record UpdateStaffRequest(
         @Email(message = "Invalid email format")
         String email,
 
-        String password
+        String password,
+
+        Long companyId
 ) {
 }
