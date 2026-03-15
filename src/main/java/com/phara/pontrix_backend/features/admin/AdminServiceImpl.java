@@ -131,12 +131,6 @@ public class AdminServiceImpl implements AdminService {
 
         staffMapper.updateEntity(request, staff);
 
-        if (request.companyId() != null) {
-            Company company = companyRepository.findById(request.companyId())
-                    .orElseThrow(() -> new RuntimeException("Company not found"));
-            staff.setCompany(company);
-        }
-
         if (request.password() != null && !request.password().isBlank()) {
             staff.setPassword(passwordEncoder.encode(request.password()));
         }
