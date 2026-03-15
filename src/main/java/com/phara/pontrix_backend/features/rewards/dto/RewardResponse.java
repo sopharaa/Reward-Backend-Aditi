@@ -1,6 +1,6 @@
 package com.phara.pontrix_backend.features.rewards.dto;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public record RewardResponse(
         Long id,
@@ -11,8 +11,7 @@ public record RewardResponse(
         Integer stock,
         Integer pointRequired,
         String image,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        OffsetDateTime createdAt,
+        OffsetDateTime updatedAt
 ) {
 }
-

@@ -23,7 +23,8 @@ import com.phara.pontrix_backend.domain.Admin;
 import com.phara.pontrix_backend.features.admin.dto.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
+import java.time.Clock;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,6 +43,7 @@ public class AdminServiceImpl implements AdminService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final TokenBlacklistService tokenBlacklistService;
+    private final Clock bangkokClock;
 
     @Override
     public AdminLoginResponse login(AdminLoginRequest request) {
@@ -101,7 +103,7 @@ public class AdminServiceImpl implements AdminService {
                 .orElseThrow(() -> new RuntimeException("Company not found"));
 
         // Soft delete
-        company.setDeletedAt(LocalDateTime.now());
+        company.setDeletedAt(OffsetDateTime.now(bangkokClock));
         companyRepository.save(company);
     }
 
@@ -165,7 +167,7 @@ public class AdminServiceImpl implements AdminService {
     public void deleteStaff(Long id) {
         Staff staff = staffRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new RuntimeException("Staff not found"));
-        staff.setDeletedAt(LocalDateTime.now());
+        staff.setDeletedAt(OffsetDateTime.now(bangkokClock));
         staffRepository.save(staff);
     }
 
@@ -270,7 +272,7 @@ public class AdminServiceImpl implements AdminService {
     public void deleteUser(Long id) {
         User user = userRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        user.setDeletedAt(LocalDateTime.now());
+        user.setDeletedAt(OffsetDateTime.now(bangkokClock));
         userRepository.save(user);
     }
 }

@@ -1,6 +1,6 @@
 package com.phara.pontrix_backend.features.admin.dto;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public record UserResponse(
         Long id,
@@ -10,8 +10,7 @@ public record UserResponse(
         String email,
         Long points,
         String profileImage,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        OffsetDateTime createdAt,
+        OffsetDateTime updatedAt
 ) {
 }
-

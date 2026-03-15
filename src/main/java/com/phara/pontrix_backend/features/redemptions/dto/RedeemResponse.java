@@ -1,6 +1,6 @@
 package com.phara.pontrix_backend.features.redemptions.dto;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public record RedeemResponse(
         Long id,
@@ -12,7 +12,7 @@ public record RedeemResponse(
         String rewardName,
         Integer pointSpend,
         String status,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        OffsetDateTime createdAt,
+        OffsetDateTime updatedAt
 ) {}
 

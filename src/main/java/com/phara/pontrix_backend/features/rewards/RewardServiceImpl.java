@@ -13,7 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
+import java.time.Clock;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,7 @@ public class RewardServiceImpl implements RewardService {
     private final CompanyRepository companyRepository;
     private final RewardMapper rewardMapper;
     private final CloudStorageService cloudStorageService;
+    private final Clock bangkokClock;
 
     @Override
     @Transactional
@@ -118,7 +120,7 @@ public class RewardServiceImpl implements RewardService {
         }
 
         // Soft delete
-        reward.setDeletedAt(LocalDateTime.now());
+        reward.setDeletedAt(OffsetDateTime.now(bangkokClock));
         rewardRepository.save(reward);
     }
 }
