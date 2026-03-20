@@ -206,4 +206,4 @@ For production deployment, use environment variables instead of hardcoding crede
 
 ## Related Projects
 
-- **[Reward Frontend (Next.js)](../Reward-Frontend-Aditi)** — User, Staff, and Admin portal built with Next.js and Redux Toolkit.
+Frontend Repository: https://github.com/sopharaa/Reward-Frontend-Aditi
