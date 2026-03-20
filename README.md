@@ -67,7 +67,6 @@ src/main/java/com/phara/pontrix_backend/
 - **Redemptions** — Users request redemptions; staff approve or reject
 - **Orders** — Order tracking and history
 - **File Uploads** — Image uploads via DigitalOcean Spaces (S3-compatible)
-- **Real-Time Updates** — Server-Sent Events (SSE) for live redemption status updates
 
 ---
 
